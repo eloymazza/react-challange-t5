@@ -1,55 +1,30 @@
-import { CommicGetter } from '../../modules/comic/application/get';
-import { ApiComicRepository } from '../../modules/comic/infrastructure/ApiComicRepository';
-import { useEffect, useState } from 'react';
-import { Comic } from '../../modules/comic/domain/Comic';
+import styles from './Comic.module.css';
+import Character from './Character';
+import LiimitSelector from './LiimitSelector';
+import Loading from '../../UI/Loading';
+import useComics from '../../hooks/useComics';
 
-const repository = new ApiComicRepository();
-const service = new CommicGetter(repository);
+const LOADING_IMAGE_URL = 'https://www.fightersgeneration.com/characters4/wolvie-dashing.gif';
 
 export function ComicList() {
-    const [comics, setComics] = useState<Comic[]>();
-    const [limit, setLimit] = useState(15);
-
-    const loadComics = () => {
-        console.log("loading comics")
-        service
-            .get(limit)
-            .then((res) => {
-                if (res) setComics(res);
-                else console.log('error');
-
-                console.log('res', res);
-            })
-            .catch((errors: any) => {
-                console.log('errors', errors);
-            });
-    }
-
-    useEffect(() => {
-        loadComics();
-    }, []);
-
-    const onChange = (value: string) => {
-        setLimit(+value);
-    };
-
+    const { comics, loading, onChange } = useComics();
     return (
         <>
-            <label>Cantidad de resultados</label>
-            <select onChange={(e) => onChange(e.target.value)}>
-                <option value={15}>15</option>
-                <option value={20}>20</option>
-                <option value={30}>30</option>
-            </select>
-
-            <br />
-
-            <ul>
-                {comics &&
-                    comics.map((comic, k) => {
-                        return <li key={k}>{comic.titleValue()}</li>;
-                    })}
-            </ul>
+            <LiimitSelector onChange={onChange} />
+            {loading ? (
+                <Loading imageURL={LOADING_IMAGE_URL} />
+            ) : (
+                <ul className={styles.comicList}>
+                    {comics &&
+                        comics.map((comic, k) => {
+                            return (
+                                <li key={k}>
+                                    <Character character={comic} />
+                                </li>
+                            );
+                        })}
+                </ul>
+            )}
         </>
     );
 }

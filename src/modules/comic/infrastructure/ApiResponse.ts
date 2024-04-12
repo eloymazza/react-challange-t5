@@ -1,4 +1,7 @@
+import { Thumbnail } from '../domain/ComicThumbnail';
+
 export interface ApiResponse {
-    title: string;
     id: number;
+    name: string;
+    thumbnail: Thumbnail;
 }
